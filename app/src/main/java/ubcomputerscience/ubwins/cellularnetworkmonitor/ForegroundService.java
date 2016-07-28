@@ -3,15 +3,15 @@ package ubcomputerscience.ubwins.cellularnetworkmonitor;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -22,26 +22,31 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
 {
     private static final String LOG_TAG = "ForegroundService";
 
-    HandlerReceiver handlerReceiver;
-    Handler h = null;
+    ScheduleIntentReceiver scheduleIntentReceiver;
+    //Handler h = null;
+    Scheduler scheduler;
     private GoogleApiClient mGoogleApiClient;
     public LocationRequest mLocationRequest;
     public static String FusedApiLatitude;
     public static String FusedApiLongitude;
     LocationFinder locationFinder;
+    PowerManager.WakeLock wakeLock;
 
 
     @Override
-    public void onCreate() {
+    public void onCreate()
+    {
         super.onCreate();
         buildGoogleApiClient();
-        handlerReceiver = new HandlerReceiver();
+        scheduleIntentReceiver = new ScheduleIntentReceiver();
+        scheduler = new Scheduler();
     }
 
-
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals("startforeground")) {
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        if (intent.getAction().equals("startforeground"))
+        {
             Log.i(LOG_TAG, "Received Start Foreground Intent ");
             Intent notificationIntent = new Intent(this, MainActivity.class);
             notificationIntent.setAction("mainAction");
@@ -59,16 +64,20 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             startForeground(101,
                     notification);
 
-            //now start handler//
+            /*ACQUIRING WAKELOCK*/
+            PowerManager mgr = (PowerManager)getApplicationContext().getSystemService(Context.POWER_SERVICE);
+            wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyWakeLock");
+            wakeLock.acquire();
+            Log.v(LOG_TAG, "Acquired WakeLock");
 
             mGoogleApiClient.connect();
-
             //finished connecting API Client
             locationFinder = new LocationFinder(getApplicationContext());
             //calling getLocation() from Location provider
             locationFinder.getLocation();
 
-             /*TESTING HANDLER*/
+            /*TESTING HANDLER*/
+            /*
             h = new Handler();
             h.postDelayed(new Runnable()
             {
@@ -76,24 +85,42 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
                 public void run()
                 {
                     Log.v(LOG_TAG,"testing handler");
-                    handlerReceiver.onHandlerReceiver(getApplicationContext());
+                    scheduleIntentReceiver.onHandlerReceiver(getApplicationContext());
                     h.postDelayed(this, 1000);
                 }
             }, 500);
 
             Toast.makeText(getApplicationContext(), "Handler Set", Toast.LENGTH_SHORT).show();
-            //handler started
+            */
+
+            /*TESTING SCHEDULER SERVICE*/
+
+            /*CALL TO SCHEDULER METHOD*/
+            scheduler.beepForAnHour(getApplicationContext());
+            Log.v(LOG_TAG, "SCHEDULER SET TO BEEP FOR 60");
+            Toast.makeText(getApplicationContext(), "Scheduler Set for 60 minutes", Toast.LENGTH_SHORT).show();
 
 
-        } else if (intent.getAction().equals(
-                "stopforeground")) {
+
+        } else if (intent.getAction().equals("stopforeground"))
+        {
             Log.i(LOG_TAG, "Received Stop Foreground Intent");
-             /*stop handler*/
+
+            /*STOP HANDLER*/
+            /*
             if(h!=null) {
                 h.removeCallbacksAndMessages(null);
-            }
-        /*to disconnect google api client*/
-            if(mGoogleApiClient.isConnected()) {
+            }*/
+
+            /*CANCEL SCHEDULER AND RELEASE WAKELOCK*/
+            wakeLock.release();
+            Log.v(LOG_TAG, "Releasing WakeLock");
+            scheduler.stopScheduler();
+            Log.v(LOG_TAG, "Beeping Service Stoppped");
+
+            /*to disconnect google api client*/
+            if(mGoogleApiClient.isConnected())
+            {
                 mGoogleApiClient.disconnect();
             }
             stopForeground(true);

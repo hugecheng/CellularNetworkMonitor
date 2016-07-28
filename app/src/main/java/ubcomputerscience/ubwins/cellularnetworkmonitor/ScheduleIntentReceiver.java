@@ -12,22 +12,21 @@ import android.util.Log;
  * University at Buffalo, The State University of New York.
  * Copyright © 2016 Gautam. All rights reserved.
  */
-public class HandlerReceiver
+public class ScheduleIntentReceiver
 {
     LocationFinder locationFinder;
     CellularDataRecorder cdr;
     DBstore dbStore;
     Location location;
-    MainActivity mainActivity;
     public final String TAG = "[CELNETMON-HNDLRCVR]";
- public void onHandlerReceiver(Context arg0)
+ public void onScheduleIntentReceiver(Context arg0)
  {
      Log.v(TAG, "inside onReceive");
      locationFinder = new LocationFinder(arg0);
 
      final TelephonyManager telephonyManager = (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
      cdr = new CellularDataRecorder();
-     mainActivity = new MainActivity();
+
      locationFinder = new LocationFinder(arg0);
      Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
      String timeStamp = cdr.getLocalTimeStamp();

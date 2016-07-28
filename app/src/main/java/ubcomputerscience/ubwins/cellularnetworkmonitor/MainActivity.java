@@ -10,45 +10,35 @@
  *   CelNetMon v1.2 ~ with user permissions for android v6.0+, records DataActivity and DataSate, logs call state
  *   CelNetMon v1.2.1 ~ with alarm and periodic recording on 60 secs.
  *   CelNetMon v1.2.2 ~ Permissions handled on onCreate in MainActivity. GPS functionality included. Records data even when location object returns null.
- *   //TODO - check listeners for wifi = connected and charging = true
- *   //TODO - explore MessagePack
+ *   CelNetMon v1.3 ~ Uses ScheduledExecutorService, does not uses Alarm(removed), does not uses Handler(removed), Uses wake lock.
  */
 
 package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.Manifest;
 import android.app.Activity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
-
 import android.support.annotation.NonNull;
-
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-
 import android.widget.Toast;
 import android.support.design.widget.Snackbar;
-
-
-
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
@@ -76,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_STORAGE = 2;
     private static final int REQUEST_PHONE = 1;
 
-    Handler h = null;
+    //Handler h = null;
     public static String FusedApiLatitude;
     public static String FusedApiLongitude;
 
@@ -88,57 +78,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Creating googleApiClient for Fused Location Provider
+
+        /*Creating googleApiClient for Fused Location Provider*/
 
         mLayout = findViewById(R.id.myLayout);
-        //Ask for permissions here itself(both for final app and one write to storage for generating CSV file)
-        //First, read location permission
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            // LOCATION permission has not been granted.
 
+        /*Ask for permissions here itself(both for final app and one write to storage for generating CSV file)*/
+
+        /*First, read location permission*/
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
             requestLocationPermission();
-
         }
         else
         {
-            // LOCATION permission is already available.
             Log.v(TAG, "LOCATION permission has already been granted.");
-            //carry on
         }
 
-        //Second read phone state permission
+        /*Second read phone state permission*/
 
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED)
         {
-            // phone permission has not been granted.
             requestPhonePermission();
         }
         else
         {
-            // phone permissions is already available.
             Log.v(TAG, "Phone permission has already been granted.");
-            //carry on
         }
 
-        //Write to Storage permission
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Storage permission has not been granted.
-
+        /*Write to Storage permission*/
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
             requestStoragePermission();
-
-        } else {
-
-            // Storage permission is already available.
-            Log.v(TAG,
-                    "Storage permission has already been granted.");
-            //carry on
+        }
+        else
+        {
+            Log.v(TAG, "Storage permission has already been granted.");
         }
 
 
-        Log.v(TAG,"NetAnalyzer Service Started");
+        Log.v(TAG,"CelNetMon Service Started");
 
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         Boolean started = sharedPref.getBoolean("Started", false);
@@ -183,13 +163,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 exportToCSV();
             }
         });
-
-
-
         assert imageButton!=null;
     }
 
-    //create the overridden function for onClickListener
 
     @Override
     public void onClick(View v) {
@@ -208,41 +184,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
-
     }
 
     public void requestLocationPermission()
     {
         Log.i(TAG, "LOCATION permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
     }
     public void requestPhonePermission()
     {
         Log.i(TAG, "Phone permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE},
-                    REQUEST_PHONE);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_PHONE);
     }
     public void requestStoragePermission()
     {
         Log.i(TAG, "STORAGE permission has NOT been granted. Requesting permission.");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_STORAGE);
-
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
 
         if (requestCode == REQUEST_LOCATION)
         {
             Log.i(TAG, "Received response for Location permission request.");
 
-            // Check if the only required permission has been granted
+            /*Check if the only required permission has been granted*/
+
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
-                // Location permission has been granted
                 Log.i(TAG, "Location permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_location,
                         Snackbar.LENGTH_SHORT).show();
@@ -252,7 +222,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "Location permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
-
             }
 
         }
@@ -261,7 +230,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.i(TAG, "Received response for storage permissions request.");
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
-                // Storage permission has been granted
                 Log.i(TAG, "Storage permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_storage,
                         Snackbar.LENGTH_SHORT).show();
@@ -271,7 +239,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "Storage permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
-
             }
         }
         else if (requestCode == REQUEST_PHONE)
@@ -279,7 +246,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.i(TAG, "Received response for phone permissions request.");
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             {
-                // Phone permission has been granted
                 Log.i(TAG, "Phone permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_phone,
                         Snackbar.LENGTH_SHORT).show();
@@ -289,7 +255,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "Phone permission was NOT granted.");
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
-
             }
 
         }
@@ -357,43 +322,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String modelMake = getModel();
                 String androidVersion = getOS();
 
-                // 1. create HttpClient
+                /*1. create HttpClient*/
                 HttpClient httpclient = new DefaultHttpClient();
 
-                // 2. make POST request to the given URL
+                /*2. make POST request to the given URL*/
                 HttpPost httpPost = new HttpPost(url);
                 String json = "";
 
-                // 3. build jsonObject
+                /*3. build jsonObject*/
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.accumulate("IMEI", IMEI);
                 jsonObject.accumulate("SERVICE", service);
                 jsonObject.accumulate("MODEL", modelMake);
                 jsonObject.accumulate("OS_VERSION", androidVersion);
 
-                // 4. convert JSONObject to JSON to String
+                /*4. convert JSONObject to JSON to String*/
                 json = jsonObject.toString();
                 // ** Alternative way to convert Person object to JSON string usin Jackson Lib
                 // ObjectMapper mapper = new ObjectMapper();
                 // json = mapper.writeValueAsString(person);
 
-                // 5. set json to StringEntity
+                /*5. set json to StringEntity*/
                 StringEntity se = new StringEntity(json);
 
-                // 6. set httpPost Entity
+                /*6. set httpPost Entity*/
                 httpPost.setEntity(se);
 
-                // 7. Set some headers to inform server about the type of the content   
+                /*7. Set some headers to inform server about the type of the content*/
                 httpPost.setHeader("Accept", "application/json");
                 httpPost.setHeader("Content-type", "application/json");
 
-                // 8. Execute POST request to the given URL
+                /*8. Execute POST request to the given URL*/
                 HttpResponse httpResponse = httpclient.execute(httpPost);
 
-                // 9. receive response as inputStream
+                /*9. receive response as inputStream*/
                 inputStream = httpResponse.getEntity().getContent();
 
-                // 10. convert inputstream to string
+                /*10. convert input stream to string*/
                 if(inputStream != null)
                     result = convertInputStreamToString(inputStream);
                 else
@@ -404,8 +369,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 Log.d("InputStream", e.getLocalizedMessage());
             }
-
-        // 11. return result
         return result;
         }
 
@@ -498,8 +461,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 if(printWriter != null) printWriter.close();
             }
-
-            //If there are no errors, return true.
             Toast.makeText(this, "DB Exported to CSV file!", Toast.LENGTH_LONG).show();
         }
     }
@@ -542,7 +503,3 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
 }
-
-
-
-
