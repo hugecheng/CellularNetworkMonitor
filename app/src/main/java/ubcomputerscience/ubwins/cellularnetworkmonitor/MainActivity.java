@@ -26,6 +26,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -55,6 +56,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Formatter;
+import java.util.Random.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback
 {
@@ -256,7 +263,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Snackbar.make(mLayout, R.string.permissions_not_granted,
                         Snackbar.LENGTH_SHORT).show();
             }
-
         }
         else
         {
@@ -277,15 +283,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private String getModel()
-
     {
         return android.os.Build.MANUFACTURER+":"+android.os.Build.MODEL;
     }
 
     private String getOS()
-
     {
         return android.os.Build.VERSION.RELEASE;
+    }
+
+    private String getHardware()
+    {
+        return android.os.Build.HARDWARE;
     }
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException
@@ -310,7 +319,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return false;
     }
 
-
     public String POST(String url)
     {
         InputStream inputStream = null;
@@ -318,9 +326,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try {
 
                 String IMEI = getIMEI();
+
+                SecureRandom secureRandom = new SecureRandom();
+                byte bytes[] = new byte[20];
+                secureRandom.nextBytes(bytes);
+                String salt = bytes.toString();
+                Log.v(TAG, "Salt: " + salt);
+                IMEI = salt + IMEI;
+                String IMEI_TO_POST = genHash(IMEI);
+                Log.v(TAG,"Hash : " + IMEI_TO_POST);
+
+
                 String service = getService();
                 String modelMake = getModel();
                 String androidVersion = getOS();
+                String hardware = getHardware();
+                Log.v(TAG, "Phone Hardware: " + hardware);
 
                 /*1. create HttpClient*/
                 HttpClient httpclient = new DefaultHttpClient();
@@ -331,10 +352,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 /*3. build jsonObject*/
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.accumulate("IMEI", IMEI);
+                jsonObject.accumulate("IMEI_HASH", IMEI_TO_POST);
+                jsonObject.accumulate("SALT", salt);
                 jsonObject.accumulate("SERVICE", service);
                 jsonObject.accumulate("MODEL", modelMake);
                 jsonObject.accumulate("OS_VERSION", androidVersion);
+                jsonObject.accumulate("HARDWARE", hardware);
 
                 /*4. convert JSONObject to JSON to String*/
                 json = jsonObject.toString();
@@ -499,6 +522,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
         }
+    }
+    private String genHash(String input) throws NoSuchAlgorithmException {
+        MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+        byte[] sha1Hash = sha1.digest(input.getBytes());
+        Formatter formatter = new Formatter();
+        for (byte b : sha1Hash) {
+            formatter.format("%02x", b);
+        }
+        return formatter.toString();
     }
 
 
