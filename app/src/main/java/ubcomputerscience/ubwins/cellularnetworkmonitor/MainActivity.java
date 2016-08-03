@@ -282,20 +282,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return manager.getNetworkOperatorName();
     }
 
-    private String getModel()
-    {
-        return android.os.Build.MANUFACTURER+":"+android.os.Build.MODEL;
-    }
+    private String getModel() {return android.os.Build.MANUFACTURER+":"+android.os.Build.MODEL;}
 
-    private String getOS()
-    {
-        return android.os.Build.VERSION.RELEASE;
-    }
+    private String getOS() {return android.os.Build.VERSION.RELEASE;}
 
     private String getHardware()
     {
         return android.os.Build.HARDWARE;
     }
+
+    private String getBoard(){return  Build.BOARD;}
+
+    private String getBrand(){return Build.BRAND;}
+
+    private String getDevice(){return Build.DEVICE;}
 
     private static String convertInputStreamToString(InputStream inputStream) throws IOException
     {
@@ -341,7 +341,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String modelMake = getModel();
                 String androidVersion = getOS();
                 String hardware = getHardware();
-                Log.v(TAG, "Phone Hardware: " + hardware);
+                String board = getBoard();
+                String device = getDevice();
+                String brand = getBrand();
+                Log.v(TAG, "Phone Info: Service: " + service);
+                Log.v(TAG, "Phone Info: Model: " + modelMake);
+                Log.v(TAG, "Phone Info: Android Version: " + androidVersion);
+                Log.v(TAG, "Phone Info: Hardware: " + hardware);
+                Log.v(TAG, "Phone Info: Board: " + board);
+                Log.v(TAG, "Phone Info: Device: " + device);
+                Log.v(TAG, "Phone Info: Brand: " + brand);
 
                 /*1. create HttpClient*/
                 HttpClient httpclient = new DefaultHttpClient();
@@ -358,6 +367,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 jsonObject.accumulate("MODEL", modelMake);
                 jsonObject.accumulate("OS_VERSION", androidVersion);
                 jsonObject.accumulate("HARDWARE", hardware);
+                jsonObject.accumulate("BOARD", board);
+                jsonObject.accumulate("BRAND", brand);
+                jsonObject.accumulate("DEVICE", device);
 
                 /*4. convert JSONObject to JSON to String*/
                 json = jsonObject.toString();

@@ -39,7 +39,7 @@ public class Scheduler
                 }
             }
         };
-        beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 1, SECONDS);
+        beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 5, SECONDS);
         //final ScheduledFuture<?> beeperHandle =  scheduler.scheduleWithFixedDelay(beeper,0,1,SECONDS);
 
     }

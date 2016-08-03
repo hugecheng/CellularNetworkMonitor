@@ -98,7 +98,7 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             /*CALL TO SCHEDULER METHOD*/
             scheduler.beepForAnHour(getApplicationContext());
             Log.v(LOG_TAG, "SCHEDULER SET TO BEEP FOR 60");
-            Toast.makeText(getApplicationContext(), "Scheduler Set for 60 minutes", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Scheduler Set!", Toast.LENGTH_SHORT).show();
 
 
 
