@@ -16,6 +16,7 @@ public class ScheduleIntentReceiver
 {
     LocationFinder locationFinder;
     CellularDataRecorder cdr;
+    PhoneCallStateRecorder pcsr;
     DBstore dbStore;
     Location location;
     public final String TAG = "[CELNETMON-HNDLRCVR]";
@@ -26,6 +27,7 @@ public class ScheduleIntentReceiver
 
      final TelephonyManager telephonyManager = (TelephonyManager) arg0.getSystemService(Context.TELEPHONY_SERVICE);
      cdr = new CellularDataRecorder();
+     pcsr = new PhoneCallStateRecorder();
 
      locationFinder = new LocationFinder(arg0);
      Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
@@ -40,7 +42,7 @@ public class ScheduleIntentReceiver
      String lmLongitude = Double.toString(locationFinder.longitude);
      String locationProvider = locationFinder.locationProvider;
      String locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude,locationProvider};
-
+     String phoneCallState = Integer.toString(pcsr.call_state);
      Log.i(TAG, "onReceive: Location data is before inserting"+locationdata[0] +" "+ locationdata[1]+" "+ locationdata[2]+" "+ locationdata[3]);
 
 
@@ -51,7 +53,7 @@ public class ScheduleIntentReceiver
      Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
      dbStore = new DBstore(arg0);
-     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState);
+     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState,phoneCallState);
  }
 
 }

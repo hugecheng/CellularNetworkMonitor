@@ -14,6 +14,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 public class PhoneCallState extends BroadcastReceiver
 {
@@ -26,8 +27,11 @@ public class PhoneCallState extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
+        Log.d("onReceive", "onReceive: inside onReceive  ");
       if (intent.getAction().equals("android.intent.action.NEW_OUTGOING_CALL"))
+
       {
+          Log.d("onReceive", "onReceive: inside onReceive of outgoing call  ");
           savedNumber = intent.getExtras().getString("android.intent.extra.PHONE_NUMBER");
       }
       else
@@ -65,6 +69,7 @@ public class PhoneCallState extends BroadcastReceiver
     //Outgoing call-  goes from IDLE to OFFHOOK when it dials out, to IDLE when hung up
     public void onCallStateChanged(Context context, int state, String number)
     {
+        Log.v("TAG","state is "+ state);
         if(lastState == state)
         {
             return;
@@ -75,15 +80,22 @@ public class PhoneCallState extends BroadcastReceiver
                 isIncoming = true;
                 callStartTime = new Date();
                 savedNumber = number;
-                onIncomingCallStarted(context, number, callStartTime);
+                Log.v("TAG","Ringing");
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
+                Log.v("TAG","Offhook");
                 //Transition of ringing->offhook are pickups of incoming calls.  Nothing done on them
                 if(lastState != TelephonyManager.CALL_STATE_RINGING)
                 {
                     isIncoming = false;
                     callStartTime = new Date();
+                    Log.v("TAG","Call started outgoing");
                     onOutgoingCallStarted(context, savedNumber, callStartTime);
+                }
+                if(lastState == TelephonyManager.CALL_STATE_RINGING)
+                {
+                    Log.v("TAG","Picked up");
+                    onIncomingCallStarted(context, number, callStartTime);
                 }
                 break;
             case TelephonyManager.CALL_STATE_IDLE:
@@ -91,6 +103,7 @@ public class PhoneCallState extends BroadcastReceiver
                 if(lastState == TelephonyManager.CALL_STATE_RINGING)
                 {
                     //Ring but no pickup-  a miss
+                    Log.v("TAG","Missed");
                     onMissedCall(context, savedNumber, callStartTime);
                 }
                 else if(isIncoming)

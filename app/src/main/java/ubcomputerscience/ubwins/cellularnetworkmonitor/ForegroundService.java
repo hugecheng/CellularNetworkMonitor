@@ -23,7 +23,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     private static final String LOG_TAG = "ForegroundService";
 
     ScheduleIntentReceiver scheduleIntentReceiver;
-    //Handler h = null;
     Scheduler scheduler;
     private GoogleApiClient mGoogleApiClient;
     public LocationRequest mLocationRequest;
@@ -76,22 +75,6 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             //calling getLocation() from Location provider
             locationFinder.getLocation();
 
-            /*TESTING HANDLER*/
-            /*
-            h = new Handler();
-            h.postDelayed(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    Log.v(LOG_TAG,"testing handler");
-                    scheduleIntentReceiver.onHandlerReceiver(getApplicationContext());
-                    h.postDelayed(this, 1000);
-                }
-            }, 500);
-
-            Toast.makeText(getApplicationContext(), "Handler Set", Toast.LENGTH_SHORT).show();
-            */
 
             /*TESTING SCHEDULER SERVICE*/
 

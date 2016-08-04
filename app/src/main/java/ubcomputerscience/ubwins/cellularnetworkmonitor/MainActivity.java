@@ -72,12 +72,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_LOCATION = 0;
     private static final int REQUEST_STORAGE = 2;
     private static final int REQUEST_PHONE = 1;
+    private static final int REQUEST_WAKELOCK = 3;
 
-    //Handler h = null;
-    public static String FusedApiLatitude;
-    public static String FusedApiLongitude;
-
-    //Exports SQLiteDB to CSV file in Phone Storage
 
 
     @Override
@@ -121,8 +117,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         else
         {
+            Log.v(TAG, "Wakelock permission has already been granted.");
+        }
+
+        // Wake Lock Permission
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
+        {
+            requestWakeLockPermission();
+        }
+        else
+        {
             Log.v(TAG, "Storage permission has already been granted.");
         }
+
 
 
         Log.v(TAG,"CelNetMon Service Started");
@@ -208,6 +216,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.i(TAG, "STORAGE permission has NOT been granted. Requesting permission.");
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE);
     }
+    public void requestWakeLockPermission()
+    {
+        Log.i(TAG, "Wake lock permission has NOT been granted. Requesting permission.");
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WAKE_LOCK}, REQUEST_WAKELOCK);
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
@@ -255,6 +268,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 Log.i(TAG, "Phone permission has now been granted.");
                 Snackbar.make(mLayout, R.string.permission_available_phone,
+                        Snackbar.LENGTH_SHORT).show();
+            }
+            else
+            {
+                Log.i(TAG, "Phone permission was NOT granted.");
+                Snackbar.make(mLayout, R.string.permissions_not_granted,
+                        Snackbar.LENGTH_SHORT).show();
+            }
+        }
+        else if (requestCode == REQUEST_WAKELOCK)
+        {
+            Log.i(TAG, "Received response for wakeLock permissions request.");
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                Log.i(TAG, "Phone permission has now been granted.");
+                Snackbar.make(mLayout, R.string.permission_available_wakelock,
                         Snackbar.LENGTH_SHORT).show();
             }
             else
@@ -464,7 +493,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 DBHandler dbHandler = new DBHandler(getApplicationContext());
                 SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
                 Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
-                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY");
+                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_STATE,NETWORK_RSSI,DATA_STATE,DATA_ACTIVITY,CALL_STATE");
                 while(curCSV.moveToNext())
                 {
                     String lmLatitude = curCSV.getString(curCSV.getColumnIndex("N_LAT"));
@@ -479,8 +508,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String networkRSSI = curCSV.getString(curCSV.getColumnIndex("NETWORK_RSSI"));
                     String dataState = curCSV.getString(curCSV.getColumnIndex("DATA_STATE"));
                     String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
+                    String callState = curCSV.getString(curCSV.getColumnIndex("CALL_STATE"));
 
-                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity;
+                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + networkProvider + "," + timeStamp + "," + networkType + "," + networkState + "," + networkRSSI+ "," + dataState + "," + dataActivity + "," + callState;
                     printWriter.println(record);
                 }
                 curCSV.close();
