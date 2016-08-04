@@ -135,7 +135,7 @@ public class LocationFinder extends Service implements LocationListener
         locationProvider=location.getProvider();
         Log.i(TAG, "onLocationChanged: latitude is " +latitude);
         Log.i(TAG, "onLocationChanged: Longitude is  "+longitude);
-        Log.i(TAG, "onLocationChanged: Network provider is"+ locationProvider);
+        Log.i(TAG, "onLocationChanged: Location provider is"+ locationProvider);
 
     }
 

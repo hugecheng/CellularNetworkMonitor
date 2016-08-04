@@ -30,67 +30,79 @@ public class CellularDataRecorder
 
     static final String TAG = "[CELNETMON-CDR]";
 
-    public String getLocalTimeStamp()
+    public Long getLocalTimeStamp()
     {
         Log.v(TAG, "inside getLocalTimeStamp");
         Long timeStamp = System.currentTimeMillis() / 1000;
-        String ts = timeStamp.toString();
-        return ts;
+        //String ts = timeStamp.toString();
+        return timeStamp;
     }
 
-    public String getCurrentDataState(TelephonyManager telephonyManager)
+    public int getCurrentDataState(TelephonyManager telephonyManager)
     {
         Log.v(TAG,"inside getDataState");
         int state = telephonyManager.getDataState();
-        String dataState = "Unknown";
-        if(state == 0)
-        {
-            dataState = "Disconnected";
+        int dataState;
+//        if(state == 0)
+//        {
+//            dataState = "Disconnected";
+//        }
+//        else if (state == 1)
+//        {
+//            dataState = "Connecting";
+//        }
+//        else if(state == 2)
+//        {
+//            dataState = "Connected";
+//        }
+//        else if(state == 3)
+//        {
+//            dataState = "Suspended";
+//        }
+        if (state < 0 || state  >3 ){
+            dataState = -1;
         }
-        else if (state == 1)
-        {
-            dataState = "Connecting";
-        }
-        else if(state == 2)
-        {
-            dataState = "Connected";
-        }
-        else if(state == 3)
-        {
-            dataState = "Suspended";
+        else{
+            dataState =state;
         }
         return dataState;
     }
 
-    public String getCurrentDataActivity(TelephonyManager telephonyManager)
+    public int getCurrentDataActivity(TelephonyManager telephonyManager)
     {
         Log.v(TAG,"inside getCurrentDataActivity");
         int activity = telephonyManager.getDataActivity();
-        String dataActivity = "Unknown";
-        if(activity == 0)
-        {
-            dataActivity = "None";
+        int dataActivity;
+//        if(activity == 0)
+//        {
+//            dataActivity = "None";
+//        }
+//        else if (activity == 1)
+//        {
+//            dataActivity = "IN";
+//        }
+//        else if(activity == 2)
+//        {
+//            dataActivity = "OUT";
+//        }
+//        else if(activity == 3)
+//        {
+//            dataActivity = "IN_OUT";
+//        }
+//        else if(activity == 4)
+//        {
+//            dataActivity = "Dormant";
+//        }
+        if (activity < 0 || activity  > 4 ){
+            dataActivity = -1;
         }
-        else if (activity == 1)
-        {
-            dataActivity = "IN";
-        }
-        else if(activity == 2)
-        {
-            dataActivity = "OUT";
-        }
-        else if(activity == 3)
-        {
-            dataActivity = "IN_OUT";
-        }
-        else if(activity == 4)
-        {
-            dataActivity = "Dormant";
+        else{
+            dataActivity =activity;
         }
         return dataActivity;
     }
 
-    public String getMobileNetworkType(TelephonyManager telephonyManager)
+    public int getMobileNetworkType(TelephonyManager telephonyManager)
     {
         int networkType = telephonyManager.getNetworkType();
         switch (networkType)
@@ -100,7 +112,7 @@ public class CellularDataRecorder
             case TelephonyManager.NETWORK_TYPE_CDMA:
             case TelephonyManager.NETWORK_TYPE_1xRTT:
             case TelephonyManager.NETWORK_TYPE_IDEN:
-                return "2g";
+                return 2;
             case TelephonyManager.NETWORK_TYPE_UMTS:
             case TelephonyManager.NETWORK_TYPE_EVDO_0:
             case TelephonyManager.NETWORK_TYPE_EVDO_A:
@@ -110,11 +122,11 @@ public class CellularDataRecorder
             case TelephonyManager.NETWORK_TYPE_EVDO_B:
             case TelephonyManager.NETWORK_TYPE_EHRPD:
             case TelephonyManager.NETWORK_TYPE_HSPAP:
-                return "3g";
+                return 3;
             case TelephonyManager.NETWORK_TYPE_LTE:
-                return "4g";
+                return 4;
             default:
-                return "unknown";
+                return 0;
         }
     }
 

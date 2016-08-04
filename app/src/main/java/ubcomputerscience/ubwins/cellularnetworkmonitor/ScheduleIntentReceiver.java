@@ -2,6 +2,7 @@ package ubcomputerscience.ubwins.cellularnetworkmonitor;
 
 import android.content.Context;
 import android.location.Location;
+import android.location.LocationManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -31,18 +32,18 @@ public class ScheduleIntentReceiver
 
      locationFinder = new LocationFinder(arg0);
      Log.v(TAG, "Calling getLocalTimeStamp and getCellularInfo");
-     String timeStamp = cdr.getLocalTimeStamp();
+     Long timeStamp = cdr.getLocalTimeStamp();
      String cellularInfo = cdr.getCellularInfo(telephonyManager);
-     String dataActivity = cdr.getCurrentDataActivity(telephonyManager);
-     String dataState = cdr.getCurrentDataState(telephonyManager);
-     String mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
+     int dataActivity = cdr.getCurrentDataActivity(telephonyManager);
+     int dataState = cdr.getCurrentDataState(telephonyManager);
+     int mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
      String fusedApiLatitude = ForegroundService.FusedApiLatitude;
      String fusedApiLongitude = ForegroundService.FusedApiLongitude;
      String lmLatitude = Double.toString(locationFinder.latitude);
      String lmLongitude = Double.toString(locationFinder.longitude);
      String locationProvider = locationFinder.locationProvider;
      String locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude,locationProvider};
-     String phoneCallState = Integer.toString(pcsr.call_state);
+     int phoneCallState = pcsr.call_state;
      Log.i(TAG, "onReceive: Location data is before inserting"+locationdata[0] +" "+ locationdata[1]+" "+ locationdata[2]+" "+ locationdata[3]);
 
 

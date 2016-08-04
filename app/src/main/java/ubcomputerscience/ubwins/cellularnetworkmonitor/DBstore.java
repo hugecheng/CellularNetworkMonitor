@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 
@@ -26,9 +27,10 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(String[] locationdata, String timeStamp, String cellularInfo, String dataActivity, String dataState, String phoneCallState,String mobileNetworkType)
+    public void insertIntoDB(String[] locationdata, Long timeStamp, String cellularInfo, int dataActivity, int dataState, int phoneCallState,int mobileNetworkType)
     {
         String networkType = "";
+        int networkTypeval = -1;
         String networkState = "";
         String networkStateVariables[]={"","","",""};
         String networkRSSI = "";
@@ -55,14 +57,33 @@ public class DBstore
             networkRSSI = splitter1[1];
             networkRSSIVariables = networkRSSI.split("#");
         }
+        int locationProviderval = -1;
+        if (locationdata[4]!=null && locationdata[4].equals(LocationManager.GPS_PROVIDER)){
+            locationProviderval = 1;
+        }
+        else if (locationdata[4]!=null &&locationdata[4].equals(LocationManager.NETWORK_PROVIDER)){
+            locationProviderval = 2;
+        }
+        if (networkType!=null && networkType.equals("GSM")){
+            networkTypeval = 0;
+        }
+        else if (networkType!=null && networkType.equals("CDMA")){
+            networkTypeval = 1;
+        }
+        else if (networkType!=null && networkType.equals("LTE")){
+            networkTypeval = 2;
+        }
+        else if (networkType!=null && networkType.equals("WCDMA")){
+            networkTypeval = 3;
+        }
         Log.v(TAG,"Trying to push to DB");
         contentValues.put("N_LAT",locationdata[0]);
         contentValues.put("N_LONG",locationdata[1]);
         contentValues.put("F_LAT",locationdata[2]);
         contentValues.put("F_LONG",locationdata[3]);
-        contentValues.put("NETWORK_PROVIDER", locationdata[4]);
+        contentValues.put("LOCATION_PROVIDER",locationProviderval);
         contentValues.put("TIMESTAMP",timeStamp);
-        contentValues.put("NETWORK_TYPE", networkType);
+        contentValues.put("NETWORK_TYPE", networkTypeval);
         contentValues.put("NETWORK_TYPE2", mobileNetworkType);
         contentValues.put("NETWORK_PARAM1", networkStateVariables[0]);
         contentValues.put("NETWORK_PARAM2", networkStateVariables[1]);

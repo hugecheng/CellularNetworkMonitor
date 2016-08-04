@@ -493,14 +493,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 DBHandler dbHandler = new DBHandler(getApplicationContext());
                 SQLiteDatabase sqLiteDatabase = dbHandler.getReadableDatabase();
                 Cursor curCSV = sqLiteDatabase.rawQuery("select * from cellRecords", null);
-                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,NETWORK_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_TYPE2,NETWORK_PARAM1,NETWORK_PARAM2,NETWORK_PARAM3,NETWORK_PARAM4,DBM,NETWORK_LEVEL,DATA_STATE,DATA_ACTIVITY,CALL_STATE");
+                printWriter.println("Latitude_LM,Longitude_LM,Latitude_FA,Longitude_FA,LOCATION_PROVIDER,TIMESTAMP,NETWORK_TYPE,NETWORK_TYPE2,NETWORK_PARAM1,NETWORK_PARAM2,NETWORK_PARAM3,NETWORK_PARAM4,DBM,NETWORK_LEVEL,DATA_STATE,DATA_ACTIVITY,CALL_STATE");
                 while(curCSV.moveToNext())
                 {
                     String lmLatitude = curCSV.getString(curCSV.getColumnIndex("N_LAT"));
                     String lmLongitude = curCSV.getString(curCSV.getColumnIndex("N_LONG"));
                     String fLatitude = curCSV.getString(curCSV.getColumnIndex("F_LAT"));
                     String fLongitude = curCSV.getString(curCSV.getColumnIndex("F_LONG"));
-                    String networkProvider = curCSV.getString(curCSV.getColumnIndex("NETWORK_PROVIDER"));
+                    String locationProvider = curCSV.getString(curCSV.getColumnIndex("LOCATION_PROVIDER"));
 
                     String timeStamp = curCSV.getString(curCSV.getColumnIndex("TIMESTAMP"));
                     String networkType = curCSV.getString(curCSV.getColumnIndex("NETWORK_TYPE"));
@@ -516,7 +516,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     String dataActivity = curCSV.getString(curCSV.getColumnIndex("DATA_ACTIVITY"));
                     String callState = curCSV.getString(curCSV.getColumnIndex("CALL_STATE"));
 
-                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + networkProvider + "," + timeStamp + "," + networkType + ","  + networkType2 + "," + networkParam1 + "," + networkParam2 + ","  + networkParam3 + ","  + networkParam4 + ","  + dbm + ","  + networklevel+ "," + dataState + "," + dataActivity + "," + callState;
+                    String record = lmLatitude + "," + lmLongitude + "," + fLatitude + "," + fLongitude + "," + locationProvider + "," + timeStamp + "," + networkType + ","  + networkType2 + "," + networkParam1 + "," + networkParam2 + ","  + networkParam3 + ","  + networkParam4 + ","  + dbm + ","  + networklevel+ "," + dataState + "," + dataActivity + "," + callState;
                     printWriter.println(record);
                 }
                 curCSV.close();
