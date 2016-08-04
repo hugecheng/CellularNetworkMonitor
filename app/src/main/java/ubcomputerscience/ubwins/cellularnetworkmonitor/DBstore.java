@@ -30,7 +30,9 @@ public class DBstore
     {
         String networkType = "";
         String networkState = "";
+        String networkStateVariables[]={"","","",""};
         String networkRSSI = "";
+        String networkRSSIVariables[]={"",""};
         ContentValues contentValues = new ContentValues();
         DBHandler dbHandler = new DBHandler(mContext);
         SQLiteDatabase sqLiteDatabase = dbHandler.getWritableDatabase();
@@ -39,15 +41,19 @@ public class DBstore
         {
 
             Log.v(TAG, "before split: " + cellularInfo);
-            String[] splitter = cellularInfo.split("@");
+            String[] mainsplit = cellularInfo.split(":");
+            String[] splitter = mainsplit[0].split("@");
             Log.v(TAG, "splitter of zero: " + splitter[0]);
             Log.v(TAG, "splitter of one: " + splitter[1]);
             networkType = splitter[0];
             String splitter1[] = splitter[1].split("_");
             networkState = splitter1[0];
+            networkStateVariables = networkState.split("#");
+
             Log.v(TAG, "splitter1 of zero: " + splitter1[0]);
             Log.v(TAG, "splitter1 of one: " + splitter1[1]);
             networkRSSI = splitter1[1];
+            networkRSSIVariables = networkRSSI.split("#");
         }
         Log.v(TAG,"Trying to push to DB");
         contentValues.put("N_LAT",locationdata[0]);
@@ -57,8 +63,12 @@ public class DBstore
         contentValues.put("NETWORK_PROVIDER", locationdata[4]);
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkType);
-        contentValues.put("NETWORK_STATE", networkState);
-        contentValues.put("NETWORK_RSSI", networkRSSI);
+        contentValues.put("NETWORK_PARAM1", networkStateVariables[0]);
+        contentValues.put("NETWORK_PARAM2", networkStateVariables[1]);
+        contentValues.put("NETWORK_PARAM3", networkStateVariables[2]);
+        contentValues.put("NETWORK_PARAM4", networkStateVariables[3]);
+        contentValues.put("DBM", networkRSSIVariables[0]);
+        contentValues.put("NETWORK_LEVEL", networkRSSIVariables[1]);
         contentValues.put("DATA_STATE",dataState);
         contentValues.put("DATA_ACTIVITY", dataActivity);
         contentValues.put("CALL_STATE",phoneCallState);
