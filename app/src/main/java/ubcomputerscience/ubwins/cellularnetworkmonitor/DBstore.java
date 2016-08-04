@@ -26,7 +26,7 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(String[] locationdata, String timeStamp, String cellularInfo, String dataActivity, String dataState, String phoneCallState)
+    public void insertIntoDB(String[] locationdata, String timeStamp, String cellularInfo, String dataActivity, String dataState, String phoneCallState,String mobileNetworkType)
     {
         String networkType = "";
         String networkState = "";
@@ -63,6 +63,7 @@ public class DBstore
         contentValues.put("NETWORK_PROVIDER", locationdata[4]);
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkType);
+        contentValues.put("NETWORK_TYPE2", mobileNetworkType);
         contentValues.put("NETWORK_PARAM1", networkStateVariables[0]);
         contentValues.put("NETWORK_PARAM2", networkStateVariables[1]);
         contentValues.put("NETWORK_PARAM3", networkStateVariables[2]);

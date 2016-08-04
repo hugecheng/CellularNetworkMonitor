@@ -53,7 +53,7 @@ public class ScheduleIntentReceiver
      Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
      dbStore = new DBstore(arg0);
-     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState,phoneCallState);
+     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState,phoneCallState,mobileNetworkType);
  }
 
 }
