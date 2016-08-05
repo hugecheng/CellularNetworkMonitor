@@ -22,7 +22,7 @@ public class Scheduler
     private static final String LOG = "SCHEDULER";
     final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     public static ScheduledFuture<?> beeperHandle=null;
-    public void beepForAnHour(final Context context)
+    public void beep(final Context context)
     {
         final Runnable beeper = new Runnable()
         {
@@ -39,8 +39,8 @@ public class Scheduler
                 }
             }
         };
-        beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 5, SECONDS);
-        //final ScheduledFuture<?> beeperHandle =  scheduler.scheduleWithFixedDelay(beeper,0,1,SECONDS);
+        beeperHandle = scheduler.scheduleAtFixedRate(beeper, 0, 1, SECONDS);
+
 
     }
     

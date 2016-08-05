@@ -37,12 +37,12 @@ public class ScheduleIntentReceiver
      int dataActivity = cdr.getCurrentDataActivity(telephonyManager);
      int dataState = cdr.getCurrentDataState(telephonyManager);
      int mobileNetworkType = cdr.getMobileNetworkType(telephonyManager);
-     String fusedApiLatitude = ForegroundService.FusedApiLatitude;
-     String fusedApiLongitude = ForegroundService.FusedApiLongitude;
-     String lmLatitude = Double.toString(locationFinder.latitude);
-     String lmLongitude = Double.toString(locationFinder.longitude);
+     Double fusedApiLatitude = ForegroundService.FusedApiLatitude;
+     Double fusedApiLongitude = ForegroundService.FusedApiLongitude;
+     Double lmLatitude = locationFinder.latitude;
+     Double lmLongitude = locationFinder.longitude;
      String locationProvider = locationFinder.locationProvider;
-     String locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude,locationProvider};
+     Double locationdata[] = {lmLatitude,lmLongitude,fusedApiLatitude,fusedApiLongitude};
      int phoneCallState = pcsr.call_state;
      Log.i(TAG, "onReceive: Location data is before inserting"+locationdata[0] +" "+ locationdata[1]+" "+ locationdata[2]+" "+ locationdata[3]);
 
@@ -54,7 +54,7 @@ public class ScheduleIntentReceiver
      Log.v(TAG, "MOBILE NETWORK TYPE: " + mobileNetworkType);
 
      dbStore = new DBstore(arg0);
-     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState,phoneCallState,mobileNetworkType);
+     dbStore.insertIntoDB(locationdata, timeStamp, cellularInfo, dataActivity, dataState,phoneCallState,mobileNetworkType,locationProvider);
  }
 
 }

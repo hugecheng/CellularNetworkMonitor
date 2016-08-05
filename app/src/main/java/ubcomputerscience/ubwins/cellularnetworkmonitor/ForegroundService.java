@@ -26,8 +26,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     Scheduler scheduler;
     private GoogleApiClient mGoogleApiClient;
     public LocationRequest mLocationRequest;
-    public static String FusedApiLatitude;
-    public static String FusedApiLongitude;
+    public static Double FusedApiLatitude;
+    public static Double FusedApiLongitude;
     LocationFinder locationFinder;
     PowerManager.WakeLock wakeLock;
 
@@ -79,8 +79,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             /*TESTING SCHEDULER SERVICE*/
 
             /*CALL TO SCHEDULER METHOD*/
-            scheduler.beepForAnHour(getApplicationContext());
-            Log.v(LOG_TAG, "SCHEDULER SET TO BEEP FOR 60");
+            scheduler.beep(getApplicationContext());
+            Log.v(LOG_TAG, "SCHEDULER SET TO BEEP Every second");
             Toast.makeText(getApplicationContext(), "Scheduler Set!", Toast.LENGTH_SHORT).show();
 
 
@@ -96,8 +96,11 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
             }*/
 
             /*CANCEL SCHEDULER AND RELEASE WAKELOCK*/
-            wakeLock.release();
+            if(wakeLock.isHeld()) {
+                wakeLock.release();
+            }
             Log.v(LOG_TAG, "Releasing WakeLock");
+
             scheduler.stopScheduler();
             Log.v(LOG_TAG, "Beeping Service Stoppped");
 
@@ -135,8 +138,8 @@ public class ForegroundService extends Service implements GoogleApiClient.Connec
     @Override
     public void onLocationChanged(Location location){
         Log.i(LOG_TAG,"Location data has changed");
-        FusedApiLatitude = Double.toString(location.getLatitude());
-        FusedApiLongitude = Double.toString(location.getLongitude());
+        FusedApiLatitude = location.getLatitude();
+        FusedApiLongitude = location.getLongitude();
         Log.i(LOG_TAG,"apiLat is : "+FusedApiLatitude);
         Log.i(LOG_TAG,"apiLong  is : "+FusedApiLongitude);
 

@@ -27,7 +27,7 @@ public class DBstore
         this.mContext=context;
     }
 
-    public void insertIntoDB(String[] locationdata, Long timeStamp, String cellularInfo, int dataActivity, int dataState, int phoneCallState,int mobileNetworkType)
+    public void insertIntoDB(Double[] locationdata, Long timeStamp, String cellularInfo, int dataActivity, int dataState, int phoneCallState,int mobileNetworkType, String locationProvider)
     {
         String networkType = "";
         int networkTypeval = -1;
@@ -58,10 +58,10 @@ public class DBstore
             networkRSSIVariables = networkRSSI.split("#");
         }
         int locationProviderval = -1;
-        if (locationdata[4]!=null && locationdata[4].equals(LocationManager.GPS_PROVIDER)){
+        if (locationProvider!=null && locationProvider.equals(LocationManager.GPS_PROVIDER)){
             locationProviderval = 1;
         }
-        else if (locationdata[4]!=null &&locationdata[4].equals(LocationManager.NETWORK_PROVIDER)){
+        else if (locationProvider!=null &&locationProvider.equals(LocationManager.NETWORK_PROVIDER)){
             locationProviderval = 2;
         }
         if (networkType!=null && networkType.equals("GSM")){
@@ -85,12 +85,12 @@ public class DBstore
         contentValues.put("TIMESTAMP",timeStamp);
         contentValues.put("NETWORK_TYPE", networkTypeval);
         contentValues.put("NETWORK_TYPE2", mobileNetworkType);
-        contentValues.put("NETWORK_PARAM1", networkStateVariables[0]);
-        contentValues.put("NETWORK_PARAM2", networkStateVariables[1]);
-        contentValues.put("NETWORK_PARAM3", networkStateVariables[2]);
-        contentValues.put("NETWORK_PARAM4", networkStateVariables[3]);
-        contentValues.put("DBM", networkRSSIVariables[0]);
-        contentValues.put("NETWORK_LEVEL", networkRSSIVariables[1]);
+        contentValues.put("NETWORK_PARAM1", Integer.parseInt(networkStateVariables[0]));
+        contentValues.put("NETWORK_PARAM2", Integer.parseInt(networkStateVariables[1]));
+        contentValues.put("NETWORK_PARAM3", Integer.parseInt(networkStateVariables[2]));
+        contentValues.put("NETWORK_PARAM4", Integer.parseInt(networkStateVariables[3]));
+        contentValues.put("DBM", Integer.parseInt(networkRSSIVariables[0]));
+        contentValues.put("NETWORK_LEVEL", Integer.parseInt(networkRSSIVariables[1]));
         contentValues.put("DATA_STATE",dataState);
         contentValues.put("DATA_ACTIVITY", dataActivity);
         contentValues.put("CALL_STATE",phoneCallState);
